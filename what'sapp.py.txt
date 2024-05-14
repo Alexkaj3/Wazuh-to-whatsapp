@@ -1,0 +1,32 @@
+```python
+ from twilio.rest import Client
+ from flask import Flask, request, jsonify
+
+ app = Flask(__name__)
+
+ # Define account information from Twilio
+ account_sid = 'YOUR_ACCOUNT_SID'
+ auth_token = 'YOUR_AUTH_TOKEN'
+ twilio_number = 'whatsapp:YOUR_TWILIO_NUMBER' # Your Twilio number
+
+ # Set up the client to communicate with Twilio
+ client = Client(account_sid, auth_token)
+
+ @app.route('/webhook', methods=['POST'])
+ def receive_alert():
+     alert_data = request.json # Alert data is received from Wazuh
+     # Format the message you want to send
+     message_body = f"Alert: {alert_data['rule']['description']}. Host: {alert_data['agent']['name']}"
+    
+     # Send the message via WhatsApp
+     message = client.messages.create(
+         body=message_body,
+         from_=twilio_number,
+         to='whatsapp:+1234567890' # The phone number you want to send the alert to
+     )
+
+     return jsonify({'status': 'success'})
+
+ if __name__ == '__main__':
+     app.run(debug=True)
+ ```
